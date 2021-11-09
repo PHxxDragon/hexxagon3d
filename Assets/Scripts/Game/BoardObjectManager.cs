@@ -7,6 +7,8 @@ using UnityEngine;
 
 [RequireComponent(typeof(ObjectCreator))]
 [RequireComponent(typeof(TileSelector))]
+[RequireComponent(typeof(LineTweener))]
+[RequireComponent(typeof(ArcTweener))]
 public class BoardObjectManager : MonoBehaviour
 {
     public const int BOARD_SIZE = 4;
@@ -17,6 +19,8 @@ public class BoardObjectManager : MonoBehaviour
 
     private ObjectCreator objectCreator;
     private GameController gameController;
+    private LineTweener lineTweener;
+    private ArcTweener arcTweener;
 
     private TileSelector tileSelector;
     private HexStorage<GameObject> tilesGrid = new HexStorage<GameObject>(BOARD_SIZE);
@@ -96,14 +100,16 @@ public class BoardObjectManager : MonoBehaviour
         {
             if (history.action == Board.Action.Copy)
             {
-                CreatePieceFromTeam(history.end, history.team);
+                GameObject piece = CreateFreePieceFromTeam(history.start, history.team);
+                lineTweener.MoveTo(piece.transform, convertHexCoordsToTransformPosition(history.end) + pieceOffset);
+                piecesGrid.put(history.end, piece);
                 ChangeTileToTeam(history.end, history.team);
             } 
             else if (history.action == Board.Action.Move)
             {
                 piecesGrid.put(history.end, piecesGrid.get(history.start));
                 piecesGrid.put(history.start, null);
-                piecesGrid.get(history.end).transform.position = convertHexCoordsToTransformPosition(history.end) + pieceOffset;
+                arcTweener.MoveTo(piecesGrid.get(history.end).transform, convertHexCoordsToTransformPosition(history.end) + pieceOffset);
                 ChangeTileToTeam(history.end, history.team);
                 ChangeTileToTeam(history.start, Team.Empty);
             } 
@@ -170,6 +176,8 @@ public class BoardObjectManager : MonoBehaviour
     {
         objectCreator = GetComponent<ObjectCreator>();
         tileSelector = GetComponent<TileSelector>();
+        lineTweener = GetComponent<LineTweener>();
+        arcTweener = GetComponent<ArcTweener>();
     }
 
     public void InitBoardFromSetup(InitialSetup initialSetup)
@@ -238,6 +246,13 @@ public class BoardObjectManager : MonoBehaviour
             Vector3 newPosition = convertHexCoordsToTransformPosition(coords);
             piecesGrid.put(coords, CreatePiece(team, newPosition));
         }
+    }
+
+    private GameObject CreateFreePieceFromTeam(HexCoordinates coords, Team team)
+    {
+        Vector3 newPosition = convertHexCoordsToTransformPosition(coords);
+        return CreatePiece(team, newPosition);
+        
     }
 
     private void CreateTileFromTeam(HexCoordinates coords, Team team)

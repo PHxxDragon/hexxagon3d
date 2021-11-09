@@ -152,7 +152,19 @@ public class MinimaxPlayer : Player
                 }
             }
         }
-        Utils.Shuffle<(HexCoordinates, HexCoordinates)>(availableMoves);
+/*        List<(HexCoordinates, HexCoordinates)> efficientMoves = new List<(HexCoordinates, HexCoordinates)>();
+        foreach (var move in availableMoves)
+        {
+            if (copyEnds.Contains(move.Item2))
+            {
+                if (HexCoordinates.Distance(move.Item1, move.Item2) == 2)
+                {
+                    continue;
+                }
+            }
+            efficientMoves.Add(move);
+        }*/
+        Utils.Shuffle(availableMoves);
         return availableMoves;
     }
 }
