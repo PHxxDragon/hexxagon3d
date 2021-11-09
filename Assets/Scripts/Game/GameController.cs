@@ -169,11 +169,11 @@ public class GameController : MonoBehaviour
 
     public void EndTurn()
     {
-        if ((boardObjectManager.GameEnded() || !HasHuman()) && !autoPlay)
+/*        if ((boardObjectManager.GameEnded() || !HasHuman()) && !autoPlay)
         {
             EndGame();
             return;
-        }
+        }*/
         Team nextTeam = Board.getNextTeam(activePlayer.team);
 
         if (!boardObjectManager.IsLost(nextTeam))
