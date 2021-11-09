@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +17,7 @@ public class GameController : MonoBehaviour
     private Player greenPlayer;
     private Player activePlayer;
     private GameState state;
+    private Thread aiThread;
 
     private void SetState(GameState state)
     {
@@ -31,9 +33,6 @@ public class GameController : MonoBehaviour
 
     void OnDestroy()
     {
-        PlayerPrefs.SetInt("Player1", (int)Config.Player1);
-        PlayerPrefs.SetInt("Player2", (int)Config.Player2);
-        PlayerPrefs.SetInt("Player3", (int)Config.Player3);
         PlayerPrefs.SetInt("ActivePlayer", (int)activePlayer.team);
         boardObjectManager.SaveGame();
     }
@@ -54,6 +53,9 @@ public class GameController : MonoBehaviour
         redPlayer = CreatePlayerFromPlayerType(Config.Player1, Team.Red);
         bluePlayer = CreatePlayerFromPlayerType(Config.Player2, Team.Blue);
         greenPlayer = CreatePlayerFromPlayerType(Config.Player3, Team.Green);
+        PlayerPrefs.SetInt("Player1", (int)Config.Player1);
+        PlayerPrefs.SetInt("Player2", (int)Config.Player2);
+        PlayerPrefs.SetInt("Player3", (int)Config.Player3);
     }
 
     private Player CreatePlayerFromPlayerType(PlayerType playerType, Team team)
@@ -61,7 +63,7 @@ public class GameController : MonoBehaviour
         if (playerType == PlayerType.Human)
         {
             return new Player(team, boardObjectManager);
-        } else if (playerType == PlayerType.Dump)
+        } else if (playerType == PlayerType.Dumb)
         {
             return new RandomPlayer(team, boardObjectManager);
         } else if (playerType == PlayerType.Smart)
@@ -92,8 +94,7 @@ public class GameController : MonoBehaviour
             activePlayer = getPlayerFromTeam((Team) PlayerPrefs.GetInt("ActivePlayer"));
             if (activePlayer.isAI)
             {
-                SetState(GameState.AI);
-                activePlayer.ProcessAI(() => SetState(GameState.Play));
+                RunAI(activePlayer);
             }
             SetState(GameState.Play);
         }
@@ -114,8 +115,7 @@ public class GameController : MonoBehaviour
         activePlayer = redPlayer;
         if (activePlayer.isAI)
         {
-            SetState(GameState.AI);
-            activePlayer.ProcessAI(() => SetState(GameState.Play));
+            RunAI(activePlayer);
         }
         SetState(GameState.Play);
     }
@@ -165,8 +165,7 @@ public class GameController : MonoBehaviour
             activePlayer = getPlayerFromTeam(nextTeam);
             if (activePlayer.isAI)
             {
-                SetState(GameState.AI);
-                activePlayer.ProcessAI(() => SetState(GameState.Play));
+                RunAI(activePlayer);
             }
                 
             return;
@@ -179,14 +178,43 @@ public class GameController : MonoBehaviour
                 activePlayer = getPlayerFromTeam(nextTeam);
                 if (activePlayer.isAI)
                 {
-                    SetState(GameState.AI);
-                    activePlayer.ProcessAI(() => SetState(GameState.Play));
+                    RunAI(activePlayer);
                 }
                 return;
             }
             EndGame();
         }
         }
+
+    private void RunAI(Player player)
+    {
+        SetState(GameState.AI);
+        aiThread = new Thread(player.ProcessAI);
+        aiThread.Start();
+        StartCoroutine(WaitForThreadCoroutine());
+    }
+
+    private IEnumerator WaitForThreadCoroutine()
+    {
+        while (true)
+        {
+            if (aiThread.IsAlive)
+            {
+                Debug.Log("Waiting...");
+                yield return new WaitForSeconds(0.5f);
+            }
+            else
+            {
+                Debug.Log("Thread terminated");
+                var move = activePlayer.aiMove;
+                SetState(GameState.Play);
+                boardObjectManager.Move(move.Item1, move.Item2);
+                break;
+            }
+        }
+    }
+        
+
 
     private void EndGame()
     {

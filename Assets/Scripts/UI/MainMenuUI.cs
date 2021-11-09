@@ -25,8 +25,8 @@ public class MainMenuUI : MonoBehaviour
     {
         if (playerType == PlayerType.Human)
         {
-            return PlayerType.Dump;
-        } else if (playerType == PlayerType.Dump)
+            return PlayerType.Dumb;
+        } else if (playerType == PlayerType.Dumb)
         {
             return PlayerType.Smart;
         } else if (playerType == PlayerType.Smart)
@@ -72,6 +72,11 @@ public class MainMenuUI : MonoBehaviour
     public void StartGame()
     {
         SceneManager.LoadScene("GameScene");
+    }
+
+    void Start()
+    {
+        Screen.orientation = ScreenOrientation.Portrait;
     }
 
     public void ContinueGame()

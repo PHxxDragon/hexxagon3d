@@ -8,6 +8,8 @@ public class Player
     public Team team { get; set; }
     public BoardObjectManager boardObjectManager { get; set; }
     public bool isAI { get; set; }
+    public PlayerType playerType { get; set; }
+    public (HexCoordinates, HexCoordinates) aiMove { get; set; }
     public Player(Team team, BoardObjectManager boardObjectManager)
     {
         this.team = team;
@@ -15,8 +17,8 @@ public class Player
         isAI = false;
     }
 
-    public virtual void ProcessAI(Action callback)
+    public virtual void ProcessAI()
     {
-        callback.Invoke();
+
     }
 }

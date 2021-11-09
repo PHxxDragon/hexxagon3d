@@ -13,7 +13,7 @@ public class MinimaxPlayer : Player
         this.depth = depth;
     }
 
-    public override void ProcessAI(Action callback)
+    public override void ProcessAI()
     {
         Board board = boardObjectManager.GetBoard();
         List<(HexCoordinates, HexCoordinates)> availableMoves = GetAvailableMoves(board, team);
@@ -34,8 +34,8 @@ public class MinimaxPlayer : Player
                 max_move = move;
             }
         }
-        boardObjectManager.Move(max_move.Item1, max_move.Item2);
-        callback.Invoke();
+        aiMove = max_move;
+        //boardObjectManager.Move(max_move.Item1, max_move.Item2);
     }
 
     private Board AlphaBeta(Board board, Team team, int remainDepth, int alpha, int beta)

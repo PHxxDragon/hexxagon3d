@@ -1,4 +1,4 @@
 public enum PlayerType
 {
-    Human, Dump, Smart, Smarter, NoPlayer
+    Human, Dumb, Smart, Smarter, NoPlayer
 }

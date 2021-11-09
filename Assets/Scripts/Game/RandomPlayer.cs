@@ -9,7 +9,7 @@ public class RandomPlayer : Player
         isAI = true;
     }
 
-    public override void ProcessAI(Action callback)
+    public override void ProcessAI()
     {
         Board board = boardObjectManager.GetBoard();
         List<(HexCoordinates, HexCoordinates)> availableMoves = new List<(HexCoordinates, HexCoordinates)>();
@@ -23,7 +23,7 @@ public class RandomPlayer : Player
         }
         Random rnd = new Random();
         int move = rnd.Next(0, availableMoves.Count);
-        boardObjectManager.Move(availableMoves[move].Item1, availableMoves[move].Item2);
-        callback.Invoke();
+        aiMove = availableMoves[move];
+        //boardObjectManager.Move(availableMoves[move].Item1, availableMoves[move].Item2);
     }
 }
