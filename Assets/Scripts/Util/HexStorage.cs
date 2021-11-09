@@ -6,6 +6,18 @@ public class HexStorage<T>
 {
     T[,] storage;
     private int board_size;
+
+    public IEnumerable<HexCoordinates> IterateStorage()
+    {
+        for (int i = 0; i < 2 * board_size + 1; i++)
+        {
+            for (int j = 0; j < 2 * board_size + 1; j++)
+            {
+                yield return convertStorageCoordsToHexCoords(i, j);
+            }
+        }
+    }
+
     public HexStorage(int board_size)
     {
         storage = new T[2*board_size + 1, 2*board_size + 1];
@@ -27,5 +39,10 @@ public class HexStorage<T>
     private (int, int) convertHexCoordsToStoreageCoords(HexCoordinates hexCoordinates)
     {
         return (hexCoordinates.q + board_size, hexCoordinates.r + board_size);
+    }
+
+    private HexCoordinates convertStorageCoordsToHexCoords(int a, int b)
+    {
+        return new HexCoordinates(a - board_size, b - board_size);
     }
 }

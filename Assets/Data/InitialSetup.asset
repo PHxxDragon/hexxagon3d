@@ -14,22 +14,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileSetups:
   - position:
-      q: 5
-      r: 0
+      q: 0
+      r: -4
     team: 0
   - position:
-      q: -5
+      q: -4
       r: 0
     team: 2
   - position:
-      q: 4
-      r: 0
-    team: 1
+      q: -4
+      r: 4
+    team: 0
   - position:
       q: 1
       r: 0
     team: 4
   - position:
       q: -1
+      r: 1
+    team: 4
+  - position:
+      q: 0
+      r: 4
+    team: 0
+  - position:
+      q: 4
       r: 0
+    team: 2
+  - position:
+      q: 4
+      r: -4
+    team: 2
+  - position:
+      q: 0
+      r: -1
     team: 4

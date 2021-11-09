@@ -33,7 +33,6 @@ public class CameraController : MonoBehaviour
             //Rotation of the Camera based on Mouse Coordinates
             if (Input.GetMouseButton(0) && (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0))
             {
-                Debug.Log("aaaa");
                 _LocalRotation.x += Input.GetAxis("Mouse X") * MouseSensitivity;
                 _LocalRotation.y -= Input.GetAxis("Mouse Y") * MouseSensitivity;
 

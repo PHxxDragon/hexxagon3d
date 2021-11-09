@@ -29,9 +29,9 @@ public class GameController : MonoBehaviour
 
     private void createPlayers()
     {
-        bluePlayer = new Player(Team.Blue, boardObjectManager, false);
-        redPlayer = new Player(Team.Red, boardObjectManager, false);
-        greenPlayer = new Player(Team.Green, boardObjectManager, false);
+        bluePlayer = new MinimaxPlayer(Team.Blue, boardObjectManager, 2);
+        redPlayer = new Player(Team.Red, boardObjectManager);
+        greenPlayer = new MinimaxPlayer(Team.Green, boardObjectManager, 2);
     }
 
     public bool IsPendingInput()
@@ -49,6 +49,11 @@ public class GameController : MonoBehaviour
         SetState(GameState.Init);
         InitFromSetup(initialSetup);
         activePlayer = redPlayer;
+        if (activePlayer.isAI)
+        {
+            SetState(GameState.AI);
+            activePlayer.ProcessAI(() => SetState(GameState.Play));
+        }
         SetState(GameState.Play);
     }
 
@@ -62,31 +67,46 @@ public class GameController : MonoBehaviour
         return activePlayer.team == team;
     }
 
-    private Player getNextPlayer(Player player)
+    private Player getPlayerFromTeam(Team team)
     {
-        if (player.team == Team.Red)
-            return greenPlayer;
-        else if (player.team == Team.Green)
-            return bluePlayer;
-        else
+        if (team == Team.Red)
+        {
             return redPlayer;
+        } else if (team == Team.Blue)
+        {
+            return bluePlayer;
+        } else
+        {
+            return greenPlayer;
+        }
     }
 
     public void EndTurn()
     {
-        Player nextPlayer = getNextPlayer(activePlayer);
+        Player nextPlayer = getPlayerFromTeam(Board.getNextTeam(activePlayer.team));
         if (!nextPlayer.isLost && boardObjectManager.HasMove(nextPlayer.team))
         {
             activePlayer = nextPlayer;
+            if (activePlayer.isAI)
+            {
+                SetState(GameState.AI);
+                activePlayer.ProcessAI(() => SetState(GameState.Play));
+            }
+                
             return;
         } 
         else
         {
             nextPlayer.isLost = true;
-            nextPlayer = getNextPlayer(nextPlayer);
+            nextPlayer = getPlayerFromTeam(Board.getNextTeam(nextPlayer.team));
             if (!nextPlayer.isLost && boardObjectManager.HasMove(nextPlayer.team))
             {
                 activePlayer = nextPlayer;
+                if (activePlayer.isAI)
+                {
+                    SetState(GameState.AI);
+                    activePlayer.ProcessAI(() => SetState(GameState.Play));
+                }
                 return;
             }
             EndGame();

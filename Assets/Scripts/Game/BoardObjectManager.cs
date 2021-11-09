@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(TileSelector))]
 public class BoardObjectManager : MonoBehaviour
 {
-    public const int BOARD_SIZE = 5;
+    public const int BOARD_SIZE = 4;
 
     [SerializeField] private GameObject origin;
     [SerializeField] private float radius;
@@ -22,9 +22,20 @@ public class BoardObjectManager : MonoBehaviour
     private HexCoordinates selected;
     private Board board;
 
+    public Board GetBoard()
+    {
+        return board;
+    }
+
     public void SetDependency(GameController gameController)
     {
         this.gameController = gameController;
+    }
+
+    public void Move(HexCoordinates start, HexCoordinates end)
+    {
+        board.Move(start, end);
+        OnUpdateBoard();
     }
 
     public void OnSquareSelected(Vector3 inputPosition)
@@ -33,6 +44,7 @@ public class BoardObjectManager : MonoBehaviour
             return;
 
         HexCoordinates new_selected = CalculateCoordsFromPosition(inputPosition);
+        Debug.Log((new_selected.q, new_selected.r));
         bool hasPiece = board.HasPiece(new_selected);
         if (selected != null)
         {
@@ -91,14 +103,7 @@ public class BoardObjectManager : MonoBehaviour
     
     public bool HasMove(Team team)
     {
-        foreach (HexCoordinates coods in board.IterateBoardPosition())
-        {
-            if (board.HasPiece(coods) && board.GetTeam(coods) == team && board.GetAvailableMoves(coods).Count > 0)
-            {
-                return true;
-            }
-        }
-        return false;
+        return board.HasMove(team);
     }
 
     private void EndTurn()
@@ -219,9 +224,6 @@ public class BoardObjectManager : MonoBehaviour
         float y = inputPosition.z - originPosition.z;
         float q = (Mathf.Sqrt(3) / 3 * x - 1f / 3 * y) / radius;
         float r = 2f / 3 * y / radius;
-        Debug.Log((x, y));
-        Debug.Log((q, r));
-        Debug.Log((Mathf.RoundToInt(q), Mathf.RoundToInt(r)));
         return new HexCoordinates(Mathf.RoundToInt(q), Mathf.RoundToInt(r));
     }
 
