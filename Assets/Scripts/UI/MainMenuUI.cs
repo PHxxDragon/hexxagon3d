@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -8,6 +9,18 @@ public class MainMenuUI : MonoBehaviour
 {
     [SerializeField]
     private List<Text> buttonTexts;
+
+    [SerializeField]
+    private GameObject continueBtn;
+
+    private void Awake()
+    {
+        if (!File.Exists(Application.persistentDataPath
+                   + "/board.dat"))
+        {
+            continueBtn.SetActive(false);     
+        }
+    }
     public static PlayerType GetNextPlayerType(PlayerType playerType, bool isPlayer3)
     {
         if (playerType == PlayerType.Human)
@@ -58,6 +71,18 @@ public class MainMenuUI : MonoBehaviour
 
     public void StartGame()
     {
+        SceneManager.LoadScene("GameScene");
+    }
+
+    public void ContinueGame()
+    {
+        if (!File.Exists(Application.persistentDataPath
+                   + "/board.dat"))
+        {
+            Debug.LogError("Cannot continue because data dont exists, maybe the continue btn isn't hided");
+        }
+
+        Config.IsContinue = true;
         SceneManager.LoadScene("GameScene");
     }
 }

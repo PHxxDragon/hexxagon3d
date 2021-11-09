@@ -24,12 +24,32 @@ public class GameController : MonoBehaviour
 
     void Awake()
     {
-        createPlayers();
+        CheckContinue();
+        CreatePlayers();
         boardObjectManager.SetDependency(this);
     }
 
+    void OnDestroy()
+    {
+        PlayerPrefs.SetInt("Player1", (int)Config.Player1);
+        PlayerPrefs.SetInt("Player2", (int)Config.Player2);
+        PlayerPrefs.SetInt("Player3", (int)Config.Player3);
+        PlayerPrefs.SetInt("ActivePlayer", (int)activePlayer.team);
+        boardObjectManager.SaveGame();
+    }
 
-    private void createPlayers()
+    private void CheckContinue()
+    {
+        if (Config.IsContinue)
+        {
+            Config.Player1 = (PlayerType)PlayerPrefs.GetInt("Player1");
+            Config.Player2 = (PlayerType)PlayerPrefs.GetInt("Player2");
+            Config.Player3 = (PlayerType)PlayerPrefs.GetInt("Player3");
+        }
+    }
+
+
+    private void CreatePlayers()
     {
         redPlayer = CreatePlayerFromPlayerType(Config.Player1, Team.Red);
         bluePlayer = CreatePlayerFromPlayerType(Config.Player2, Team.Blue);
@@ -63,7 +83,21 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        StartNewGame();
+        if (!Config.IsContinue)
+        {
+            StartNewGame();
+        } else
+        {
+            boardObjectManager.LoadGame();
+            activePlayer = getPlayerFromTeam((Team) PlayerPrefs.GetInt("ActivePlayer"));
+            if (activePlayer.isAI)
+            {
+                SetState(GameState.AI);
+                activePlayer.ProcessAI(() => SetState(GameState.Play));
+            }
+            SetState(GameState.Play);
+        }
+        
     }
 
     private void StartNewGame()
@@ -71,7 +105,7 @@ public class GameController : MonoBehaviour
         SetState(GameState.Init);
         if (Config.Player3 == PlayerType.NoPlayer)
         {
-            InitFromSetup(initialSetup);
+            InitFromSetup(initialSetup);            
         } else
         {
             InitFromSetup(InitialSetup3Player);
@@ -112,9 +146,9 @@ public class GameController : MonoBehaviour
 
     public bool HasHuman()
     {
-        return ((!redPlayer.isAI && !redPlayer.isLost) ||
-                (!bluePlayer.isAI && !bluePlayer.isLost) ||
-                (!greenPlayer.isAI && !greenPlayer.isLost));
+        return (!redPlayer.isAI && !boardObjectManager.IsLost(Team.Red)) ||
+                (!bluePlayer.isAI && !boardObjectManager.IsLost(Team.Blue)) ||
+                (!greenPlayer.isAI && !boardObjectManager.IsLost(Team.Green));
     }
 
     public void EndTurn()
@@ -122,6 +156,7 @@ public class GameController : MonoBehaviour
         if (boardObjectManager.GameEnded() || !HasHuman())
         {
             EndGame();
+            return;
         }
         Team nextTeam = Board.getNextTeam(activePlayer.team);
 

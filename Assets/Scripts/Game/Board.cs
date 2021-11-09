@@ -9,6 +9,8 @@ public class Board
     private int board_size;
     private HexStorage<Piece> grid;
     private List<HexCoordinates> invalids = new List<HexCoordinates>();
+
+    [NonSerialized]
     private List<ActionHistory> actionHistories = new List<ActionHistory>();
     private Dictionary<Team, int> pieceNum = new Dictionary<Team, int>();
     private Dictionary<Team, bool> isLost = new Dictionary<Team, bool>();
@@ -166,29 +168,13 @@ public class Board
     {
         if (team == Team.Red)
         {
-            return Team.Green;
-        } else if (team == Team.Green)
-        {
             return Team.Blue;
+        } else if (team == Team.Blue)
+        {
+            return Team.Green;
         } else
         {
             return Team.Red;
-        }
-    }
-
-    public static Team getLastTeam(Team team)
-    {
-        if (team == Team.Red)
-        {
-            return Team.Blue;
-        }
-        else if (team == Team.Green)
-        {
-            return Team.Red;
-        }
-        else
-        {
-            return Team.Green;
         }
     }
 
@@ -279,34 +265,6 @@ public class Board
             }
         }
         UpdateIsLost();
-        CheckPieceNum();
-    }
-
-    private void CheckPieceNum()
-    {
-        int greenCount = 0;
-        int redCount = 0;
-        int blueCount = 0;
-        foreach (HexCoordinates coords in IterateBoardPosition())
-        {
-            if (HasPiece(coords))
-            {
-                if (GetTeam(coords) == Team.Red)
-                {
-                    redCount += 1;
-                } else if (GetTeam(coords) == Team.Blue)
-                {
-                    blueCount += 1;
-                } else if (GetTeam(coords) == Team.Green)
-                {
-                    greenCount += 1;
-                }
-            }
-        }
-        if (greenCount != pieceNum[Team.Green] || redCount != pieceNum[Team.Red] || blueCount != pieceNum[Team.Blue])
-        {
-            Debug.LogError("Piece num is wrong !!!!");
-        }
     }
 
     public bool IsValidMove(HexCoordinates selected, HexCoordinates new_selected)
