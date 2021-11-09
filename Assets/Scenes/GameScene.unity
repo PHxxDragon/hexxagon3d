@@ -278,6 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialSetup: {fileID: 11400000, guid: b89ddb2a1ef301b4e9e254b94a346445, type: 2}
+  InitialSetup3Player: {fileID: 11400000, guid: 38d5d21b0489c8e46bb912ad6037b8cf, type: 2}
   boardObjectManager: {fileID: 91499224}
 --- !u!1 &617311837
 GameObject:

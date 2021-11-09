@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 [RequireComponent(typeof(ObjectCreator))]
@@ -38,13 +40,22 @@ public class BoardObjectManager : MonoBehaviour
         OnUpdateBoard();
     }
 
+    public bool GameEnded()
+    {
+        return board.GameEnded();
+    }
+
+    public Team TeamWon()
+    {
+        return board.TeamWon();
+    }
+
     public void OnSquareSelected(Vector3 inputPosition)
     {
         if (!gameController.IsPendingInput())
             return;
 
         HexCoordinates new_selected = CalculateCoordsFromPosition(inputPosition);
-        Debug.Log((new_selected.q, new_selected.r));
         bool hasPiece = board.HasPiece(new_selected);
         if (selected != null)
         {
@@ -71,6 +82,11 @@ public class BoardObjectManager : MonoBehaviour
             if (hasPiece && gameController.IsTeamTurnActive(board.GetTeam(new_selected)))
                 SelectPiece(new_selected);
         }
+    }
+
+    public bool IsLost(Team team)
+    {
+        return board.IsLost(team);
     }
 
     private void OnUpdateBoard()
@@ -170,6 +186,46 @@ public class BoardObjectManager : MonoBehaviour
                 CreateTileFromTeam(coords, Team.Empty);
             }
         }
+    }
+
+    public void SaveGame()
+    {
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Create(Application.persistentDataPath
+                     + "/board.dat");
+        bf.Serialize(file, board);
+        file.Close();
+    }
+
+    public void LoadGame()
+    {
+        if (File.Exists(Application.persistentDataPath
+                   + "/board.dat"))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file =
+                       File.Open(Application.persistentDataPath
+                       + "/board.dat", FileMode.Open);
+            board = (Board)bf.Deserialize(file);
+            file.Close();
+
+            foreach (HexCoordinates coords in board.IterateBoardPosition())
+            {
+                if (board.HasPiece(coords))
+                {
+                    CreatePieceFromTeam(coords, board.GetTeam(coords));
+                    CreateTileFromTeam(coords, board.GetTeam(coords));
+                }
+                else
+                {
+                    CreateTileFromTeam(coords, Team.Empty);
+                }
+            }
+
+            Debug.Log("Game data loaded!");
+        }
+        else
+            Debug.LogError("There is no save data!");
     }
 
     private void CreatePieceFromTeam(HexCoordinates coords, Team team)

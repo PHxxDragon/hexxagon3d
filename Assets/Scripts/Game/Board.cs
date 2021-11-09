@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class Board
 {
     private int board_size;
@@ -66,8 +67,6 @@ public class Board
 
     }
 
-    
-
     public bool HasMove(Team team)
     {
         return !isLost[team];
@@ -101,6 +100,26 @@ public class Board
     public bool IsLost(Team team)
     {
         return isLost[team];
+    }
+
+    public Team TeamWon()
+    {
+        Team maxTeam = Team.Red;
+        int max = pieceNum[Team.Red];
+
+        if (max < pieceNum[Team.Blue])
+        {
+            max = pieceNum[Team.Blue];
+            maxTeam = Team.Blue;
+        }
+
+        if (max < pieceNum[Team.Green])
+        {
+            max = pieceNum[Team.Green];
+            maxTeam = Team.Green;
+        }
+
+        return maxTeam;
     }
 
     public bool GameEnded()

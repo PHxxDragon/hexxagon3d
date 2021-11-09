@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
     private enum GameState { Init, Play, AI, Animate, Finished }
     [SerializeField] private InitialSetup initialSetup;
+    [SerializeField] private InitialSetup InitialSetup3Player;
     [SerializeField] private BoardObjectManager boardObjectManager;
 
     private Player redPlayer;
@@ -29,9 +31,29 @@ public class GameController : MonoBehaviour
 
     private void createPlayers()
     {
-        bluePlayer = new MinimaxPlayer(Team.Blue, boardObjectManager, 2);
-        redPlayer = new Player(Team.Red, boardObjectManager);
-        greenPlayer = new MinimaxPlayer(Team.Green, boardObjectManager, 2);
+        redPlayer = CreatePlayerFromPlayerType(Config.Player1, Team.Red);
+        bluePlayer = CreatePlayerFromPlayerType(Config.Player2, Team.Blue);
+        greenPlayer = CreatePlayerFromPlayerType(Config.Player3, Team.Green);
+    }
+
+    private Player CreatePlayerFromPlayerType(PlayerType playerType, Team team)
+    {
+        if (playerType == PlayerType.Human)
+        {
+            return new Player(team, boardObjectManager);
+        } else if (playerType == PlayerType.Dump)
+        {
+            return new RandomPlayer(team, boardObjectManager);
+        } else if (playerType == PlayerType.Smart)
+        {
+            return new MinimaxPlayer(team, boardObjectManager, 1);
+        } else if (playerType == PlayerType.Smarter)
+        {
+            return new MinimaxPlayer(team, boardObjectManager, 3);
+        } else
+        {
+            return new Player(team, boardObjectManager);
+        }
     }
 
     public bool IsPendingInput()
@@ -47,7 +69,14 @@ public class GameController : MonoBehaviour
     private void StartNewGame()
     {
         SetState(GameState.Init);
-        InitFromSetup(initialSetup);
+        if (Config.Player3 == PlayerType.NoPlayer)
+        {
+            InitFromSetup(initialSetup);
+        } else
+        {
+            InitFromSetup(InitialSetup3Player);
+        }
+        
         activePlayer = redPlayer;
         if (activePlayer.isAI)
         {
@@ -81,12 +110,24 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public bool HasHuman()
+    {
+        return ((!redPlayer.isAI && !redPlayer.isLost) ||
+                (!bluePlayer.isAI && !bluePlayer.isLost) ||
+                (!greenPlayer.isAI && !greenPlayer.isLost));
+    }
+
     public void EndTurn()
     {
-        Player nextPlayer = getPlayerFromTeam(Board.getNextTeam(activePlayer.team));
-        if (!nextPlayer.isLost && boardObjectManager.HasMove(nextPlayer.team))
+        if (boardObjectManager.GameEnded() || !HasHuman())
         {
-            activePlayer = nextPlayer;
+            EndGame();
+        }
+        Team nextTeam = Board.getNextTeam(activePlayer.team);
+
+        if (!boardObjectManager.IsLost(nextTeam))
+        {
+            activePlayer = getPlayerFromTeam(nextTeam);
             if (activePlayer.isAI)
             {
                 SetState(GameState.AI);
@@ -97,11 +138,10 @@ public class GameController : MonoBehaviour
         } 
         else
         {
-            nextPlayer.isLost = true;
-            nextPlayer = getPlayerFromTeam(Board.getNextTeam(nextPlayer.team));
-            if (!nextPlayer.isLost && boardObjectManager.HasMove(nextPlayer.team))
+            nextTeam = Board.getNextTeam(nextTeam);
+            if (!boardObjectManager.IsLost(nextTeam))
             {
-                activePlayer = nextPlayer;
+                activePlayer = getPlayerFromTeam(nextTeam);
                 if (activePlayer.isAI)
                 {
                     SetState(GameState.AI);
@@ -115,6 +155,7 @@ public class GameController : MonoBehaviour
 
     private void EndGame()
     {
-        //throw new NotImplementedException();
+        GameOverConfig.wonTeam = boardObjectManager.TeamWon();
+        SceneManager.LoadScene("GameOverScene");
     }
 }

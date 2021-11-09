@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e21c1179683e7046a49a8f58b824216, type: 3}
-  m_Name: InitialSetup
+  m_Name: InitialSetup2Players
   m_EditorClassIdentifier: 
   tileSetups:
   - position:
-      q: 0
+      q: 4
       r: -4
     team: 0
   - position:
-      q: -4
+      q: 4
       r: 0
     team: 2
   - position:
-      q: -4
+      q: 0
       r: 4
     team: 0
   - position:
@@ -34,15 +34,15 @@ MonoBehaviour:
       r: 1
     team: 4
   - position:
-      q: 0
+      q: -4
       r: 4
-    team: 0
-  - position:
-      q: 4
-      r: 0
     team: 2
   - position:
-      q: 4
+      q: -4
+      r: 0
+    team: 0
+  - position:
+      q: 0
       r: -4
     team: 2
   - position:
