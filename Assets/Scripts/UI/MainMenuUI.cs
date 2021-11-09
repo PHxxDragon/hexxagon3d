@@ -53,7 +53,7 @@ public class MainMenuUI : MonoBehaviour
         PlayerType nextPlayerType = GetNextPlayerType(oldPlayerType, playerNum == 3);
         bool hasHuman = false;
         Config.SetPlayer(playerNum, nextPlayerType);
-        for(int i = 1; i <= 3; i++ )
+/*        for(int i = 1; i <= 3; i++ )
         {
             if (Config.GetPlayer(i) == PlayerType.Human)
             {
@@ -64,9 +64,9 @@ public class MainMenuUI : MonoBehaviour
         {
             Config.SetPlayer(playerNum, oldPlayerType);
         } else
-        {
+        {*/
             buttonTexts[playerNum - 1].text = nextPlayerType.ToString();
-        }
+/*        }*/
     }
 
     public void StartGame()

@@ -26,7 +26,7 @@ public class MinimaxPlayer : Player
             var new_board = board.Copy();
             new_board.Move(move.Item1, move.Item2);
             /*            new_board.moveHistory.Add(move);*/
-            var final_board = (!board.Is2TeamLeft()) ? Minimax(new_board, Board.getNextTeam(team), depth/2) : AlphaBeta(new_board, Board.getNextTeam(team), depth, max_score, min_score);
+            var final_board = (!board.Is2TeamLeft()) ? Minimax(new_board, Board.getNextTeam(team), depth - 1) : AlphaBeta(new_board, Board.getNextTeam(team), depth, max_score, min_score);
             int score = final_board.Evaluate(team);
             if (max_score < score)
             {

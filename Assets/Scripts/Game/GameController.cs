@@ -18,6 +18,7 @@ public class GameController : MonoBehaviour
     private Player activePlayer;
     private GameState state;
     private Thread aiThread;
+    private bool autoPlay = false;
 
     private void SetState(GameState state)
     {
@@ -56,6 +57,10 @@ public class GameController : MonoBehaviour
         PlayerPrefs.SetInt("Player1", (int)Config.Player1);
         PlayerPrefs.SetInt("Player2", (int)Config.Player2);
         PlayerPrefs.SetInt("Player3", (int)Config.Player3);
+        if (Config.Player1 != PlayerType.Human && Config.Player2 != PlayerType.Human && Config.Player3 != PlayerType.Human)
+        {
+            autoPlay = true;
+        }
     }
 
     private Player CreatePlayerFromPlayerType(PlayerType playerType, Team team)
@@ -71,7 +76,7 @@ public class GameController : MonoBehaviour
             return new MinimaxPlayer(team, boardObjectManager, 1);
         } else if (playerType == PlayerType.Smarter)
         {
-            return new MinimaxPlayer(team, boardObjectManager, 3);
+            return new MinimaxPlayer(team, boardObjectManager, 2);
         } else
         {
             return new Player(team, boardObjectManager);
@@ -153,7 +158,7 @@ public class GameController : MonoBehaviour
 
     public void EndTurn()
     {
-        if (boardObjectManager.GameEnded() || !HasHuman())
+        if ((boardObjectManager.GameEnded() || !HasHuman()) && !autoPlay)
         {
             EndGame();
             return;
