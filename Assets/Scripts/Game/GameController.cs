@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -11,6 +12,11 @@ public class GameController : MonoBehaviour
     [SerializeField] private InitialSetup initialSetup;
     [SerializeField] private InitialSetup InitialSetup3Player;
     [SerializeField] private BoardObjectManager boardObjectManager;
+    [SerializeField] private Text redScore; 
+    [SerializeField] private Text blueScore; 
+    [SerializeField] private Text greenScore; 
+    [SerializeField] private Text statusText; 
+    [SerializeField] private GameObject greenGameObject; 
 
     private Player redPlayer;
     private Player bluePlayer;
@@ -97,9 +103,11 @@ public class GameController : MonoBehaviour
         {
             boardObjectManager.LoadGame();
             activePlayer = getPlayerFromTeam((Team) PlayerPrefs.GetInt("ActivePlayer"));
+            statusText.text = activePlayer.team.ToString() + " turn";
             if (activePlayer.isAI)
             {
                 RunAI(activePlayer);
+                statusText.text = activePlayer.team.ToString() + " is thinking...";
             }
             SetState(GameState.Play);
         }
@@ -111,16 +119,19 @@ public class GameController : MonoBehaviour
         SetState(GameState.Init);
         if (Config.Player3 == PlayerType.NoPlayer)
         {
-            InitFromSetup(initialSetup);            
+            InitFromSetup(initialSetup);
+            greenGameObject.SetActive(false);
         } else
         {
             InitFromSetup(InitialSetup3Player);
         }
         
         activePlayer = redPlayer;
+        statusText.text = activePlayer.team.ToString() + " turn";
         if (activePlayer.isAI)
         {
             RunAI(activePlayer);
+            statusText.text = activePlayer.team.ToString() + " is thinking...";
         }
         SetState(GameState.Play);
     }
@@ -168,11 +179,12 @@ public class GameController : MonoBehaviour
         if (!boardObjectManager.IsLost(nextTeam))
         {
             activePlayer = getPlayerFromTeam(nextTeam);
+            statusText.text = activePlayer.team.ToString() + " turn";
             if (activePlayer.isAI)
             {
                 RunAI(activePlayer);
+                statusText.text = activePlayer.team.ToString() + " is thinking...";
             }
-                
             return;
         } 
         else
@@ -181,15 +193,24 @@ public class GameController : MonoBehaviour
             if (!boardObjectManager.IsLost(nextTeam))
             {
                 activePlayer = getPlayerFromTeam(nextTeam);
+                statusText.text = activePlayer.team.ToString() + " turn";
                 if (activePlayer.isAI)
                 {
                     RunAI(activePlayer);
+                    statusText.text = activePlayer.team.ToString() + " is thinking...";
                 }
                 return;
             }
             EndGame();
         }
         }
+
+    public void UpdateGameScore()
+    {
+        redScore.text = boardObjectManager.GetBoard().GetPieceNum()[Team.Red].ToString();
+        blueScore.text = boardObjectManager.GetBoard().GetPieceNum()[Team.Blue].ToString();
+        greenScore.text = boardObjectManager.GetBoard().GetPieceNum()[Team.Green].ToString();
+    }
 
     private void RunAI(Player player)
     {

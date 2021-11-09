@@ -121,6 +121,12 @@ public class Board
             maxTeam = Team.Green;
         }
 
+        foreach (Team team in pieceNum.Keys)
+        {
+            if (maxTeam == team) continue;
+            if (pieceNum[maxTeam] == pieceNum[team]) return Team.Empty;
+        }
+
         return maxTeam;
     }
 

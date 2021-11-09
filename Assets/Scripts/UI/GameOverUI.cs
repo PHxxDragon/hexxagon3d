@@ -12,7 +12,14 @@ public class GameOverUI : MonoBehaviour
 
     private void Start()
     {
-        winText.text = GameOverConfig.wonTeam.ToString() + " Won";
+        if (GameOverConfig.wonTeam != Team.Empty)
+        {
+            winText.text = GameOverConfig.wonTeam.ToString() + " Won";
+        } else
+        {
+            winText.text = "Draw";
+        }
+       
     }
     public void ToTitle()
     {

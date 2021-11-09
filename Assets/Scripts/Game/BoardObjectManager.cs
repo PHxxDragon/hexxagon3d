@@ -124,6 +124,7 @@ public class BoardObjectManager : MonoBehaviour
 
     private void EndTurn()
     {
+        gameController.UpdateGameScore();
         gameController.EndTurn();
     }
 
@@ -186,6 +187,7 @@ public class BoardObjectManager : MonoBehaviour
                 CreateTileFromTeam(coords, Team.Empty);
             }
         }
+        gameController.UpdateGameScore();
     }
 
     public void SaveGame()
@@ -223,6 +225,7 @@ public class BoardObjectManager : MonoBehaviour
             }
 
             Debug.Log("Game data loaded!");
+            gameController.UpdateGameScore();
         }
         else
             Debug.LogError("There is no save data!");
