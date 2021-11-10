@@ -96,6 +96,10 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
+        if (greenPlayer.playerType == PlayerType.NoPlayer)
+        {
+            greenGameObject.SetActive(false);
+        }
         if (!Config.IsContinue)
         {
             StartNewGame();
@@ -120,7 +124,6 @@ public class GameController : MonoBehaviour
         if (Config.Player3 == PlayerType.NoPlayer)
         {
             InitFromSetup(initialSetup);
-            greenGameObject.SetActive(false);
         } else
         {
             InitFromSetup(InitialSetup3Player);
